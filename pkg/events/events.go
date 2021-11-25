@@ -168,3 +168,33 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- i
 		time.Sleep(2 * time.Second)
 	}
 }
+
+func Run(cfg *Config) (*Statistics, error) {
+	var wg sync.WaitGroup
+	users := GenerateUsers(&wg, cfg)
+
+	fmt.Println("Generating events...")
+	var eventsList = []insights.Event{}
+	for event := range GenerateEventsForAllUsers(&wg, cfg, users) {
+		eventsList = append(eventsList, event)
+	}
+	fmt.Println("Done generating events")
+
+	// Statistics
+	stats := &Statistics{
+		Cfg:    cfg,
+		Events: eventsList,
+	}
+
+	if cfg.DryRun {
+		fmt.Println("Dry run, not sending events to Insights API")
+		return stats, nil
+	}
+
+	// Send events to Insights
+	err := SendEvents(cfg, eventsList)
+	if err != nil {
+		return nil, err
+	}
+	return stats, nil
+}

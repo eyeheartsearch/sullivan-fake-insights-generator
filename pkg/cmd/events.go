@@ -4,12 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"sync"
 	"text/tabwriter"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/montanaflynn/stats"
 	"github.com/spf13/cobra"
 
 	"github.com/algolia/flagship-analytics/pkg/events"
@@ -79,78 +77,21 @@ func NewEventsCmd() *cobra.Command {
 }
 
 func runEventsCmd(cfg *events.Config) error {
-	fmt.Println("Generating events...")
-	var wg sync.WaitGroup
-	users := events.GenerateUsers(&wg, cfg)
-
-	var eventsList = []insights.Event{}
-	for event := range events.GenerateEventsForAllUsers(&wg, cfg, users) {
-		eventsList = append(eventsList, event)
-	}
-
-	fmt.Println("Done generating events.")
-	if cfg.DryRun {
-		fmt.Println("Dry run is ON, not sending events to Insights.")
-	} else {
-		fmt.Println("Dry run is OFF, Sending events to Insights...")
-		chunkSize := 1000
-		var chunks [][]insights.Event
-		for i := 0; i < len(eventsList); i += chunkSize {
-			end := i + chunkSize
-
-			if end > len(eventsList) {
-				end = len(eventsList)
-			}
-
-			chunks = append(chunks, eventsList[i:end])
-		}
-		for _, chunk := range chunks {
-			if _, err := cfg.InsightsClient.SendEvents(chunk); err != nil {
-				return err
-			}
-		}
-		fmt.Println("Done sending events to Insights.")
-	}
-
-	// Calculate stats
-	totalClickEventsCount := 0
-	var clickPositions []float64
-	for _, event := range eventsList {
-		if event.EventType == insights.EventTypeClick {
-			clickPositions = append(clickPositions, float64(event.Positions[0]))
-			totalClickEventsCount++
-		}
-	}
-	medianClickPosition, err := stats.Median(clickPositions)
+	stats, err := events.Run(cfg)
 	if err != nil {
 		return err
 	}
-	averageClickPosition, err := stats.Mean(clickPositions)
-	if err != nil {
-		return err
-	}
-
-	totalConversionEventsCount := 0
-	for _, event := range eventsList {
-		if event.EventType == insights.EventTypeConversion {
-			totalConversionEventsCount++
-		}
-	}
-
-	totalSearchesCount := cfg.NumberOfUsers * cfg.SearchesPerUser
-	clickThroughRate := float64(totalClickEventsCount) / float64(totalSearchesCount) * 100
-	conversionRate := float64(totalConversionEventsCount) / float64(totalSearchesCount) * 100
 
 	// Show stats
 	fmt.Println("Stats:")
 	w := tabwriter.NewWriter(os.Stdout, 0, 1, 1, ' ', 0)
-	fmt.Fprintf(w, "Total searches:\t%d", totalSearchesCount)
-	fmt.Fprintf(w, "\nTotal click events:\t%d", totalClickEventsCount)
-	fmt.Fprintf(w, "\nAverage click position:\t%.2f", averageClickPosition)
-	fmt.Fprintf(w, "\nMedian click position:\t%.2f", medianClickPosition)
-	fmt.Fprintf(w, "\nClick through rate:\t%.2f%%", clickThroughRate)
-	fmt.Fprintf(w, "\nTotal conversion events:\t%d", totalConversionEventsCount)
-	fmt.Fprintf(w, "\nConversion rate:\t%.2f%%", conversionRate)
+	fmt.Fprintf(w, "\nTotal searches:\t%d", stats.TotalSearches())
+	fmt.Fprintf(w, "\nTotal click events:\t%d", stats.TotalEventsOfType(insights.EventTypeClick))
+	fmt.Fprintf(w, "\nAverage click position:\t%.2f", stats.MeanClickPosition())
+	fmt.Fprintf(w, "\nMedian click position:\t%.2f", stats.MedianClickPosition())
+	fmt.Fprintf(w, "\nClick through rate:\t%.2f%%", stats.ClickThroughRatePercent())
+	fmt.Fprintf(w, "\nTotal conversion events:\t%d", stats.TotalConversions())
+	fmt.Fprintf(w, "\nConversion rate:\t%.2f%%\n", stats.ConversionRatePercent())
 	w.Flush()
 
 	return nil
