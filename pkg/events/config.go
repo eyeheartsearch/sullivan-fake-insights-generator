@@ -17,6 +17,7 @@ type Config struct {
 	NumberOfUsers   int
 	SearchesPerUser int
 
+	HitsPerPage      int
 	ClickThroughRate float64
 	ConversionRate   float64
 

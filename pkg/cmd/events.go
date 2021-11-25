@@ -10,6 +10,7 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/algolia/flagship-analytics/pkg/events"
+	"github.com/montanaflynn/stats"
 	"github.com/spf13/cobra"
 )
 
@@ -65,6 +66,7 @@ func NewEventsCmd() *cobra.Command {
 	cmd.Flags().IntVar(&cfg.NumberOfUsers, "users", 100, "number of users")
 	cmd.Flags().IntVar(&cfg.SearchesPerUser, "searches-per-user", 5, "number of searches per user")
 
+	cmd.Flags().IntVar(&cfg.HitsPerPage, "hits-per-page", 20, "number of hits per page")
 	cmd.Flags().Float64Var(&cfg.ClickThroughRate, "click-through-rate", 20, "click through rate")
 	cmd.Flags().Float64Var(&cfg.ConversionRate, "conversion-rate", 10, "conversion rate")
 
@@ -111,14 +113,21 @@ func runEventsCmd(cfg *events.Config) error {
 
 	// Calculate stats
 	totalClickEventsCount := 0
-	totalClickPosition := 0
+	var clickPositions []float64
 	for _, event := range eventsList {
 		if event.EventType == insights.EventTypeClick {
+			clickPositions = append(clickPositions, float64(event.Positions[0]))
 			totalClickEventsCount++
-			totalClickPosition += event.Positions[0]
 		}
 	}
-	averageClickPosition := float64(totalClickPosition) / float64(totalClickEventsCount)
+	medianClickPosition, err := stats.Median(clickPositions)
+	if err != nil {
+		return err
+	}
+	averageClickPosition, err := stats.Mean(clickPositions)
+	if err != nil {
+		return err
+	}
 
 	totalConversionEventsCount := 0
 	for _, event := range eventsList {
@@ -137,6 +146,7 @@ func runEventsCmd(cfg *events.Config) error {
 	fmt.Fprintf(w, "Total searches:\t%d", totalSearchesCount)
 	fmt.Fprintf(w, "\nTotal click events:\t%d", totalClickEventsCount)
 	fmt.Fprintf(w, "\nAverage click position:\t%.2f", averageClickPosition)
+	fmt.Fprintf(w, "\nMedian click position:\t%.2f", medianClickPosition)
 	fmt.Fprintf(w, "\nClick through rate:\t%.2f%%", clickThroughRate)
 	fmt.Fprintf(w, "\nTotal conversion events:\t%d", totalConversionEventsCount)
 	fmt.Fprintf(w, "\nConversion rate:\t%.2f%%", conversionRate)

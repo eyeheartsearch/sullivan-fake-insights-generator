@@ -2,12 +2,18 @@ package events
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"sync"
 	"time"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	wr "github.com/mroth/weightedrand"
+)
+
+const (
+	clickDistributionApogee = 20
 )
 
 type SearchEvent struct {
@@ -17,19 +23,21 @@ type SearchEvent struct {
 	Filters   []string
 }
 
+func CalculatePositionWeight(itemPosition int, clickPosition int) uint {
+	a := float64(itemPosition - clickPosition)
+	b := float64(2 * clickPosition)
+	return uint(1 + clickDistributionApogee*math.Exp(-(math.Pow(a, 2)/b)))
+}
+
 func (e *SearchEvent) PickObjectIDPosition() (int, error) {
 	var choices []wr.Choice
-	weight := 10
-	// Items in a higher position are more likely to be picked.
-	for i := 0; i < len(e.ObjectIDs); i++ {
-		if weight > 2 {
-			weight--
-		}
+	for i := range e.ObjectIDs {
 		choices = append(choices, wr.Choice{
+			Weight: CalculatePositionWeight(i, e.Term.ClickPosition),
 			Item:   i,
-			Weight: uint(weight),
 		})
 	}
+
 	chooser, err := wr.NewChooser(choices...)
 	if err != nil {
 		return 0, err
@@ -39,7 +47,11 @@ func (e *SearchEvent) PickObjectIDPosition() (int, error) {
 
 func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
 	searchTerm := cfg.SearchTerms.Pick()
+	// User specific search options
 	searchOpts := user.GetSearchOptions(cfg)
+	// Hits per page
+	searchOpts = append(searchOpts, opt.HitsPerPage(cfg.HitsPerPage))
+
 	res, err := cfg.SearchIndex.Search(searchTerm.Term, searchOpts...)
 	if err != nil {
 		return nil, err
