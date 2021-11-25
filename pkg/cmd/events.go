@@ -55,7 +55,7 @@ func NewEventsCmd() *cobra.Command {
 			searchClient := search.NewClient(appId, apiKey)
 
 			cfg.SearchIndex = searchClient.InitIndex(indexName)
-			cfg.InsightsClient = insights.NewClient(appId, indexName)
+			cfg.InsightsClient = insights.NewClient(appId, apiKey)
 
 			return runEventsCmd(cfg)
 		},
