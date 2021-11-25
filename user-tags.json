@@ -1,0 +1,15 @@
+{
+  "platform": {
+    "mobile:ios": 5,
+    "mobile:android": 5,
+    "desktop": 8
+  },
+  "customer_type": {
+    "customer_type:new": 5,
+    "customer_type:returning": 5
+  },
+  "category_page": {
+    "category_page:men": 2,
+    "category_page:women": 2
+  }
+}

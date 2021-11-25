@@ -1,0 +1,20 @@
+term,click_through_rate,conversion_rate,click_average_position,synonym,facets
+trousers,1,1,5,pants,
+jumpers,1,1,5,hoodie,
+shoes,1,1,10,,
+bags,1,1,10,,
+polo,1,1,10,,
+business casual,0.5,0.5,5,,
+sweater,1,1,10,,
+jeans,1,1,5,denim,
+flats,0.5,0.5,5,Ballerina,gender:women
+sale,1,1,10,,
+skirt,1,1,10,,gender:women
+cardigan,1,1,10,,
+hats,1,1,5,,
+women shorts,1,1,10,,gender:women
+men sport,1,1,5,,gender:men
+jacket,1,1,5,,
+shoes on sale,1,1,5,,
+tee,1,1,5,tshirt,
+pants,1,1,5,,
