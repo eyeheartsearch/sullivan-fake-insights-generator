@@ -23,6 +23,9 @@ type SearchEvent struct {
 	Filters   []string
 }
 
+// CalculatePositionWeight calculates the probability of a click on a given position.
+// The formula is based on the click distribution apogee.
+// Copyright (c) 2021, Sylvain Huprelle @shuprelle
 func CalculatePositionWeight(itemPosition int, clickPosition int) uint {
 	a := float64(itemPosition - clickPosition)
 	b := float64(2 * clickPosition)
