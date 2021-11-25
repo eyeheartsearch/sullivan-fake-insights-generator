@@ -147,6 +147,7 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- i
 	for i := 0; i < cfg.SearchesPerUser; i++ {
 		searchEvent, err := NewSearchEvent(cfg, user)
 		if err != nil {
+			fmt.Printf("Error doing search: %v\n", err)
 			continue
 		}
 		if len(searchEvent.ObjectIDs) == 0 {
@@ -165,7 +166,7 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- i
 		if conversionEvent != nil {
 			events <- *conversionEvent
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(time.Second * 2)
 	}
 }
 
