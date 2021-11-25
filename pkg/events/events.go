@@ -47,9 +47,7 @@ func (e *SearchEvent) PickObjectIDPosition() (int, error) {
 
 func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
 	searchTerm := cfg.SearchTerms.Pick()
-	// User specific search options
 	searchOpts := user.GetSearchOptions(cfg)
-	// Hits per page
 	searchOpts = append(searchOpts, opt.HitsPerPage(cfg.HitsPerPage))
 
 	res, err := cfg.SearchIndex.Search(searchTerm.Term, searchOpts...)

@@ -9,9 +9,10 @@ import (
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
-	"github.com/algolia/flagship-analytics/pkg/events"
 	"github.com/montanaflynn/stats"
 	"github.com/spf13/cobra"
+
+	"github.com/algolia/flagship-analytics/pkg/events"
 )
 
 // NewEventsCmd creates and returns an events command
