@@ -10,14 +10,14 @@ import (
 )
 
 type SearchTerms struct {
-	searchTerms []SearchTerm
+	SearchTerms []SearchTerm
 	Chooser     *wr.Chooser
 }
 
 func (t *SearchTerms) NewChooser() error {
-	choices := make([]wr.Choice, 0, len(t.searchTerms))
+	choices := make([]wr.Choice, 0, len(t.SearchTerms))
 	weight := 100
-	for _, v := range t.searchTerms {
+	for _, v := range t.SearchTerms {
 		choices = append(choices, wr.Choice{
 			Item:   v,
 			Weight: uint(weight),
@@ -56,7 +56,7 @@ func NewSearchTerms(fileName string) (*SearchTerms, error) {
 	defer file.Close()
 
 	searchTerms := &SearchTerms{}
-	if err := gocsv.UnmarshalFile(file, &searchTerms.searchTerms); err != nil {
+	if err := gocsv.UnmarshalFile(file, &searchTerms.SearchTerms); err != nil {
 		return nil, err
 	}
 	if err := searchTerms.NewChooser(); err != nil {

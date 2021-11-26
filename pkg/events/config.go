@@ -3,9 +3,11 @@ package events
 import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
+	"github.com/algolia/fake-insights-generator/pkg/iostreams"
 )
 
 type Config struct {
+	IO     *iostreams.IOStreams
 	DryRun bool
 
 	SearchIndex    *search.Index

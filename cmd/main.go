@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/algolia/flagship-analytics/pkg/cmd"
+	"github.com/algolia/fake-insights-generator/pkg/cmd"
 	"github.com/joho/godotenv"
 )
 

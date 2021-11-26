@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/spf13/cobra"
 
-	"github.com/algolia/flagship-analytics/pkg/events"
+	"github.com/algolia/fake-insights-generator/pkg/events"
+	"github.com/algolia/fake-insights-generator/pkg/iostreams"
+	"github.com/algolia/fake-insights-generator/pkg/utils"
 )
 
 // NewEventsCmd creates and returns an events command
@@ -21,6 +22,8 @@ func NewEventsCmd() *cobra.Command {
 		Use:   "events",
 		Short: "Generate analytics events",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg.IO = iostreams.System()
+
 			// Search terms
 			searchTermsFileName := cmd.Flag("search-terms").Value.String()
 			searches, err := events.NewSearchTerms(searchTermsFileName)
@@ -77,22 +80,48 @@ func NewEventsCmd() *cobra.Command {
 }
 
 func runEventsCmd(cfg *events.Config) error {
+	cs := cfg.IO.ColorScheme()
+	if cfg.DryRun {
+		fmt.Fprintf(cfg.IO.Out, "%s Dry run is ON: Events WILL NOT be sent to Insights and analytics will be DISABLED on search queries\n", cs.WarningIcon())
+	} else {
+		fmt.Fprintf(cfg.IO.Out, "%s Dry run is OFF: Events WILL be sent to Insights and analytics will be ENABLED on search queries\n", cs.WarningIcon())
+	}
+
+	cfg.IO.StartProgressIndicatorWithLabel("Generating events...")
 	stats, err := events.Run(cfg)
+	cfg.IO.StopProgressIndicator()
 	if err != nil {
 		return err
 	}
 
-	// Show stats
-	fmt.Println("Stats:")
-	w := tabwriter.NewWriter(os.Stdout, 0, 1, 1, ' ', 0)
-	fmt.Fprintf(w, "\nTotal searches:\t%d", stats.TotalSearches())
-	fmt.Fprintf(w, "\nTotal click events:\t%d", stats.TotalEventsOfType(insights.EventTypeClick))
-	fmt.Fprintf(w, "\nAverage click position:\t%.2f", stats.MeanClickPosition())
-	fmt.Fprintf(w, "\nMedian click position:\t%.2f", stats.MedianClickPosition())
-	fmt.Fprintf(w, "\nClick through rate:\t%.2f%%", stats.ClickThroughRatePercent())
-	fmt.Fprintf(w, "\nTotal conversion events:\t%d", stats.TotalConversions())
-	fmt.Fprintf(w, "\nConversion rate:\t%.2f%%\n", stats.ConversionRatePercent())
-	w.Flush()
+	if cfg.IO.IsStdoutTTY() {
+		fmt.Fprintf(cfg.IO.Out, "%s Done generating events!\n", cs.SuccessIcon())
+	}
 
-	return nil
+	table := utils.NewTablePrinter(cfg.IO)
+	if table.IsTTY() {
+		table.AddField(cs.Bold("TERM"), nil, nil)
+		table.AddField(cs.Bold("SEARCHES"), nil, nil)
+		table.AddField(cs.Bold("CLICKS"), nil, nil)
+		table.AddField(cs.Bold("CLICK THROUGH RATE"), nil, nil)
+		table.AddField(cs.Bold("AVG CLICK POSITION"), nil, nil)
+		table.AddField(cs.Bold("MEDIAN CLICK POSITION"), nil, nil)
+		table.AddField(cs.Bold("CONVERSIONS"), nil, nil)
+		table.AddField(cs.Bold("CONVERSION RATE"), nil, nil)
+		table.EndRow()
+	}
+
+	for _, stats := range stats {
+		table.AddField(stats.Stats.Term, nil, nil)
+		table.AddField(fmt.Sprintf("%d", stats.Stats.TotalSearches()), nil, nil)
+		table.AddField(fmt.Sprintf("%d", stats.Stats.TotalEventsOfType(insights.EventTypeClick)), nil, nil)
+		table.AddField(fmt.Sprintf("%.2f%%", stats.Stats.ClickThroughRatePercent()), nil, nil)
+		table.AddField(fmt.Sprintf("%.2f", stats.Stats.MeanClickPosition()), nil, nil)
+		table.AddField(fmt.Sprintf("%.2f", stats.Stats.MedianClickPosition()), nil, nil)
+		table.AddField(fmt.Sprintf("%d", stats.Stats.TotalConversions()), nil, nil)
+		table.AddField(fmt.Sprintf("%.2f%%", stats.Stats.ConversionRatePercent()), nil, nil)
+		table.EndRow()
+	}
+
+	return table.Render()
 }

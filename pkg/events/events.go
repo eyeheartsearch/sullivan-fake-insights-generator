@@ -23,6 +23,19 @@ type SearchEvent struct {
 	Filters   []string
 }
 
+// Event is a wrapper around an event to be sent to Insights.
+type Event struct {
+	InsightEvent *insights.Event
+	SearchEvent  *SearchEvent
+}
+
+func (e *Event) EventType() string {
+	if e.InsightEvent != nil {
+		return e.InsightEvent.EventType
+	}
+	return "search"
+}
+
 // CalculatePositionWeight calculates the probability of a click on a given position.
 // The formula is based on the click distribution apogee.
 // Copyright (c) 2021, Sylvain Huprelle @shuprelle
@@ -77,7 +90,7 @@ func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
 	}, nil
 }
 
-func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *insights.Event {
+func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *Event {
 	// Get the click through rate for this specific search term
 	clickThroughRate := cfg.ClickThroughRate / 100 * searchEvent.Term.ClickThroughRate
 	if rand.Float64() > clickThroughRate {
@@ -91,7 +104,7 @@ func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, 
 	}
 	objectID := searchEvent.ObjectIDs[position]
 
-	return &insights.Event{
+	insightsEvent := &insights.Event{
 		EventType: insights.EventTypeClick,
 		EventName: eventName,
 		Index:     cfg.SearchIndex.GetName(),
@@ -102,9 +115,14 @@ func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, 
 		QueryID:   searchEvent.QueryID,
 		Filters:   searchEvent.Filters,
 	}
+
+	return &Event{
+		InsightEvent: insightsEvent,
+		SearchEvent:  &searchEvent,
+	}
 }
 
-func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *insights.Event {
+func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *Event {
 	// Get the conversion rate for this specific search term
 	conversionRate := cfg.ConversionRate / 100 * searchEvent.Term.ConversionRate
 	if rand.Float64() > conversionRate {
@@ -118,7 +136,7 @@ func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.T
 	}
 	objectID := searchEvent.ObjectIDs[position]
 
-	return &insights.Event{
+	insightsEvent := &insights.Event{
 		EventType: insights.EventTypeConversion,
 		EventName: eventName,
 		Index:     cfg.SearchIndex.GetName(),
@@ -128,10 +146,15 @@ func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.T
 		QueryID:   searchEvent.QueryID,
 		Filters:   searchEvent.Filters,
 	}
+
+	return &Event{
+		InsightEvent: insightsEvent,
+		SearchEvent:  &searchEvent,
+	}
 }
 
-func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *User) <-chan insights.Event {
-	events := make(chan insights.Event)
+func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *User) <-chan Event {
+	events := make(chan Event)
 	go func() {
 		for user := range users {
 			go GenerateEvents(wg, cfg, user, events)
@@ -142,7 +165,7 @@ func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *Us
 	return events
 }
 
-func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- insights.Event) {
+func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- Event) {
 	defer wg.Done()
 	for i := 0; i < cfg.SearchesPerUser; i++ {
 		searchEvent, err := NewSearchEvent(cfg, user)
@@ -150,6 +173,7 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- i
 			fmt.Printf("Error doing search: %v\n", err)
 			continue
 		}
+		events <- Event{SearchEvent: searchEvent}
 		if len(searchEvent.ObjectIDs) == 0 {
 			fmt.Printf("Warning: No results for search term: %s (%s)\n", searchEvent.Term.Term, searchEvent.Term.Synonym)
 			continue
@@ -170,30 +194,33 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- i
 	}
 }
 
-func Run(cfg *Config) (*Statistics, error) {
+func Run(cfg *Config) (StatsPerTermList, error) {
 	var wg sync.WaitGroup
 	users := GenerateUsers(&wg, cfg)
 
-	fmt.Println("Generating events...")
-	var eventsList = []insights.Event{}
+	eventsList := make([]Event, 0)
 	for event := range GenerateEventsForAllUsers(&wg, cfg, users) {
 		eventsList = append(eventsList, event)
 	}
-	fmt.Println("Done generating events")
 
-	// Statistics
-	stats := &Statistics{
-		Cfg:    cfg,
-		Events: eventsList,
+	stats := make(StatsPerTermList, 0)
+	stats = append(stats, NewStatsForTerm("ALL", eventsList))
+	for _, term := range cfg.SearchTerms.SearchTerms {
+		stats = append(stats, NewStatsForTerm(term.Term, eventsList))
 	}
 
 	if cfg.DryRun {
-		fmt.Println("Dry run, not sending events to Insights API")
 		return stats, nil
 	}
 
 	// Send events to Insights
-	err := SendEvents(cfg, eventsList)
+	var insightsEvent []insights.Event
+	for _, event := range eventsList {
+		if event.InsightEvent != nil {
+			insightsEvent = append(insightsEvent, *event.InsightEvent)
+		}
+	}
+	err := SendEvents(cfg, insightsEvent)
 	if err != nil {
 		return nil, err
 	}
