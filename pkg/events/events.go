@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"sort"
 	"sync"
 	"time"
 
@@ -208,6 +209,8 @@ func Run(cfg *Config) (StatsPerTermList, error) {
 	for _, term := range cfg.SearchTerms.SearchTerms {
 		stats = append(stats, NewStatsForTerm(term.Term, eventsList))
 	}
+
+	sort.Sort(stats)
 
 	if cfg.DryRun {
 		return stats, nil

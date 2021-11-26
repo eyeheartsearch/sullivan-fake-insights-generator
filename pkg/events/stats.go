@@ -17,15 +17,15 @@ type Stats struct {
 }
 
 type StatsPerTerm struct {
-	Total int
-	Stats Stats
+	TotalSearches int
+	Stats         Stats
 }
 
 type StatsPerTermList []*StatsPerTerm
 
 func (s StatsPerTermList) Len() int           { return len(s) }
 func (s StatsPerTermList) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
-func (s StatsPerTermList) Less(i, j int) bool { return s[i].Total < s[j].Total }
+func (s StatsPerTermList) Less(i, j int) bool { return s[i].TotalSearches > s[j].TotalSearches }
 
 func NewStatsForTerm(term string, events []Event) *StatsPerTerm {
 	var eventsForTerm []Event
@@ -34,14 +34,14 @@ func NewStatsForTerm(term string, events []Event) *StatsPerTerm {
 			eventsForTerm = append(eventsForTerm, event)
 		}
 	}
-
-	return &StatsPerTerm{
+	stats := &StatsPerTerm{
 		Stats: Stats{
 			Term:   term,
 			Events: eventsForTerm,
 		},
-		Total: len(eventsForTerm),
 	}
+	stats.TotalSearches = stats.Stats.TotalEventsOfType(eventTypeSearch)
+	return stats
 }
 
 func (s *Stats) EventsOfType(eventType string) []Event {
