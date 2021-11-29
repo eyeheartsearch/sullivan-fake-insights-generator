@@ -16,3 +16,5 @@
 
 .env
 config.yml
+
+search-terms.csv
