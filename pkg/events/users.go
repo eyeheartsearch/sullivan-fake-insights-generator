@@ -43,7 +43,6 @@ func GenerateUsers(wg *sync.WaitGroup, cfg *Config) <-chan *User {
 	ch := make(chan *User)
 	go func() {
 		for i := 0; i < cfg.NumberOfUsers; i++ {
-			wg.Add(1)
 			ch <- NewUser(cfg)
 		}
 		close(ch)

@@ -68,7 +68,7 @@ func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
 	searchOpts := user.GetSearchOptions(cfg)
 	searchOpts = append(searchOpts, opt.HitsPerPage(cfg.HitsPerPage))
 
-	// Need to add the `GetRankingInfo` to identify the Variant ID
+	// Need to add the `GetRankingInfo` to identify the A/B test variant ID
 	if cfg.ABTest.VariantID != 0 {
 		searchOpts = append(searchOpts, opt.GetRankingInfo(true))
 	}
@@ -77,6 +77,7 @@ func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// Dynamic synonyms
 	if searchTerm.Synonym != "" {
 		res, err = cfg.SearchIndex.Search(searchTerm.Synonym, searchOpts...)
@@ -173,20 +174,19 @@ func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.T
 	}
 }
 
-func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *User) <-chan Event {
-	events := make(chan Event)
-	go func() {
-		for user := range users {
-			go GenerateEvents(wg, cfg, user, events)
-		}
-		wg.Wait()
-		close(events)
-	}()
-	return events
+func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *User, events chan<- Event) {
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for user := range users {
+				GenerateEvents(wg, cfg, user, events)
+			}
+		}()
+	}
 }
 
 func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- Event) {
-	defer wg.Done()
 	for i := 0; i < cfg.SearchesPerUser; i++ {
 		searchEvent, err := NewSearchEvent(cfg, user)
 		if err != nil {
@@ -210,7 +210,6 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- E
 		if conversionEvent != nil {
 			events <- *conversionEvent
 		}
-		time.Sleep(time.Second * 2)
 	}
 }
 
@@ -218,8 +217,16 @@ func Run(cfg *Config) (StatsPerTermList, error) {
 	var wg sync.WaitGroup
 	users := GenerateUsers(&wg, cfg)
 
+	events := make(chan Event)
+	GenerateEventsForAllUsers(&wg, cfg, users, events)
+
+	go func() {
+		wg.Wait()
+		close(events)
+	}()
+
 	eventsList := make([]Event, 0)
-	for event := range GenerateEventsForAllUsers(&wg, cfg, users) {
+	for event := range events {
 		eventsList = append(eventsList, event)
 	}
 
@@ -229,7 +236,7 @@ func Run(cfg *Config) (StatsPerTermList, error) {
 		stats = append(stats, NewStatsForTerm(term.Term, eventsList))
 	}
 
-	sort.Sort(stats)
+	sort.Sort(stats) // Sort by number of search events
 
 	if cfg.DryRun {
 		return stats, nil
