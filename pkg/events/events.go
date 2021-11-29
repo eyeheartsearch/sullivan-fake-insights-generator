@@ -18,10 +18,11 @@ const (
 )
 
 type SearchEvent struct {
-	Term      SearchTerm
-	ObjectIDs []string
-	QueryID   string
-	Filters   []string
+	Term            SearchTerm
+	ObjectIDs       []string
+	QueryID         string
+	Filters         []string
+	ABTestVariantID int
 }
 
 // Event is a wrapper around an event to be sent to Insights.
@@ -67,11 +68,16 @@ func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
 	searchOpts := user.GetSearchOptions(cfg)
 	searchOpts = append(searchOpts, opt.HitsPerPage(cfg.HitsPerPage))
 
+	// Need to add the `GetRankingInfo` to identify the Variant ID
+	if cfg.ABTest.VariantID != 0 {
+		searchOpts = append(searchOpts, opt.GetRankingInfo(true))
+	}
+
 	res, err := cfg.SearchIndex.Search(searchTerm.Term, searchOpts...)
 	if err != nil {
 		return nil, err
 	}
-	// dynamic synonyms
+	// Dynamic synonyms
 	if searchTerm.Synonym != "" {
 		res, err = cfg.SearchIndex.Search(searchTerm.Synonym, searchOpts...)
 		if err != nil {
@@ -85,15 +91,22 @@ func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
 	}
 
 	return &SearchEvent{
-		Term:      searchTerm,
-		ObjectIDs: objectIDs,
-		QueryID:   res.QueryID,
+		Term:            searchTerm,
+		ObjectIDs:       objectIDs,
+		QueryID:         res.QueryID,
+		ABTestVariantID: res.ABTestVariantID,
 	}, nil
 }
 
 func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *Event {
 	// Get the click through rate for this specific search term
 	clickThroughRate := cfg.ClickThroughRate / 100 * searchEvent.Term.ClickThroughRate
+
+	// Improve the click through rate if A/B test is enabled and the variant is the "good" one.
+	if searchEvent.ABTestVariantID != 0 && searchEvent.ABTestVariantID == cfg.ABTest.VariantID {
+		clickThroughRate = clickThroughRate + cfg.ABTest.ClickThroughRate/100
+	}
+
 	if rand.Float64() > clickThroughRate {
 		return nil
 	}
@@ -126,6 +139,12 @@ func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, 
 func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *Event {
 	// Get the conversion rate for this specific search term
 	conversionRate := cfg.ConversionRate / 100 * searchEvent.Term.ConversionRate
+
+	// Improve the conversion rate if A/B test is enabled and the variant is the "good" one.
+	if searchEvent.ABTestVariantID != 0 && searchEvent.ABTestVariantID == cfg.ABTest.VariantID {
+		conversionRate = conversionRate + cfg.ABTest.ConversionRate/100
+	}
+
 	if rand.Float64() > conversionRate {
 		return nil
 	}

@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	"os"
+	"math/rand"
+	"time"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
@@ -14,6 +14,10 @@ import (
 	"github.com/algolia/fake-insights-generator/pkg/utils"
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 // NewEventsCmd creates and returns an events command
 func NewEventsCmd() *cobra.Command {
 	cfg := &events.Config{}
@@ -21,6 +25,9 @@ func NewEventsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "events",
 		Short: "Generate analytics events",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return utils.InitializeConfig(cmd, "events")
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg.IO = iostreams.System()
 
@@ -41,18 +48,9 @@ func NewEventsCmd() *cobra.Command {
 			cfg.TagsCollection = tagsCollection
 
 			// Algolia clients (search and insights)
-			appId := os.Getenv("ALGOLIA_APP_ID")
-			if appId == "" {
-				return errors.New("ALGOLIA_APP_ID environment variable is not set")
-			}
-			apiKey := os.Getenv("ALGOLIA_API_KEY")
-			if apiKey == "" {
-				return errors.New("ALGOLIA_API_KEY environment variable is not set")
-			}
-			indexName := os.Getenv("ALGOLIA_INDEX_NAME")
-			if indexName == "" {
-				return errors.New("ALGOLIA_INDEX_NAME environment variable is not set")
-			}
+			appId := cmd.Flag("app-id").Value.String()
+			apiKey := cmd.Flag("api-key").Value.String()
+			indexName := cmd.Flag("index-name").Value.String()
 			searchClient := search.NewClient(appId, apiKey)
 
 			cfg.SearchIndex = searchClient.InitIndex(indexName)
@@ -61,6 +59,10 @@ func NewEventsCmd() *cobra.Command {
 			return runEventsCmd(cfg)
 		},
 	}
+
+	cmd.Flags().String("app-id", "", "Algolia application ID")
+	cmd.Flags().String("api-key", "", "Algolia API key")
+	cmd.Flags().String("index-name", "", "Algolia index name")
 
 	cmd.Flags().String("search-terms", "search-terms.csv", "searches terms file")
 	cmd.Flags().String("user-tags", "user-tags.json", "users tags file")
@@ -73,6 +75,9 @@ func NewEventsCmd() *cobra.Command {
 	cmd.Flags().Float64Var(&cfg.ConversionRate, "conversion-rate", 10, "conversion rate")
 
 	// cmd.Flags().StringVar(&cfg.ABTest, "ab-test-", false, "A/B Test")
+	cmd.Flags().IntVar(&cfg.ABTest.VariantID, "ab-test-variant-id", 0, "A/B Test: ID of the variant to favorize")
+	cmd.Flags().Float64Var(&cfg.ABTest.ClickThroughRate, "ab-test-variant-ctr", 20, "A/B Test: How much CTR +% for the selected variant")
+	cmd.Flags().Float64Var(&cfg.ABTest.ConversionRate, "ab-test-variant-cvr", 20, "A/B Test: How much CTR +% for the selected variant")
 
 	cmd.Flags().BoolVar(&cfg.DryRun, "dry-run", false, "if false, events will not be sent and analytics will be disabled on search queries")
 
@@ -81,15 +86,27 @@ func NewEventsCmd() *cobra.Command {
 
 func runEventsCmd(cfg *events.Config) error {
 	cs := cfg.IO.ColorScheme()
-	if cfg.DryRun {
-		fmt.Fprintf(cfg.IO.Out, "%s Dry run is ON: Events WILL NOT be sent to Insights and analytics will be DISABLED on search queries\n", cs.WarningIcon())
-	} else {
-		fmt.Fprintf(cfg.IO.Out, "%s Dry run is OFF: Events WILL be sent to Insights and analytics will be ENABLED on search queries\n", cs.WarningIcon())
+	if cfg.IO.IsStdoutTTY() {
+		if cfg.DryRun {
+			fmt.Fprintf(cfg.IO.Out, "%s Dry run is ON: Events WILL NOT be sent to Insights and analytics will be DISABLED on search queries\n", cs.WarningIcon())
+		} else {
+			fmt.Fprintf(cfg.IO.Out, "%s Dry run is OFF: Events WILL be sent to Insights and analytics will be ENABLED on search queries\n", cs.WarningIcon())
+		}
+
+		if cfg.ABTest.VariantID > 0 {
+			fmt.Fprintf(cfg.IO.Out, "%s A/B Test is ON: %s variant will be favorized (+%.2f%% CTR / +%.2f%% CVR)\n",
+				cs.WarningIcon(), cs.Bold(string(cfg.ABTest.VariantID)), cfg.ABTest.ClickThroughRate, cfg.ABTest.ConversionRate)
+		}
+
+		cfg.IO.StartProgressIndicatorWithLabel("Generating events...")
 	}
 
-	cfg.IO.StartProgressIndicatorWithLabel("Generating events...")
 	stats, err := events.Run(cfg)
-	cfg.IO.StopProgressIndicator()
+
+	if cfg.IO.IsStdoutTTY() {
+		cfg.IO.StopProgressIndicator()
+	}
+
 	if err != nil {
 		return err
 	}

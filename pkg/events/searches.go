@@ -1,9 +1,7 @@
 package events
 
 import (
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/gocarina/gocsv"
 	wr "github.com/mroth/weightedrand"
@@ -35,7 +33,6 @@ func (t *SearchTerms) NewChooser() error {
 }
 
 func (t *SearchTerms) Pick() SearchTerm {
-	rand.Seed(time.Now().UTC().UnixNano())
 	return t.Chooser.Pick().(SearchTerm)
 }
 

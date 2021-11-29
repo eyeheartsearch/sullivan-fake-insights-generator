@@ -3,9 +3,7 @@ package events
 import (
 	"encoding/json"
 	"io/ioutil"
-	"math/rand"
 	"os"
-	"time"
 
 	wr "github.com/mroth/weightedrand"
 )
@@ -20,7 +18,6 @@ type Tags struct {
 }
 
 func (t *Tags) Pick() string {
-	rand.Seed(time.Now().UTC().UnixNano())
 	return t.Chooser.Pick().(string)
 }
 

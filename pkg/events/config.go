@@ -6,6 +6,12 @@ import (
 	"github.com/algolia/fake-insights-generator/pkg/iostreams"
 )
 
+type ABTest struct {
+	VariantID        int
+	ClickThroughRate float64
+	ConversionRate   float64
+}
+
 type Config struct {
 	IO     *iostreams.IOStreams
 	DryRun bool
@@ -23,5 +29,5 @@ type Config struct {
 	ClickThroughRate float64
 	ConversionRate   float64
 
-	ABTest string
+	ABTest ABTest
 }
