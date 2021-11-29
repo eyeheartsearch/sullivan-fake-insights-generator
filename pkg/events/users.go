@@ -24,7 +24,7 @@ func (u *User) GetSearchOptions(cfg *Config) []interface{} {
 	if cfg.DryRun {
 		opts = append(opts, opt.Analytics(false))
 	} else {
-		opts = append(opts, opt.UserToken(u.Token), opt.ClickAnalytics(true))
+		opts = append(opts, opt.UserToken(u.Token), opt.ClickAnalytics(true), opt.AnalyticsTags(u.Tags...))
 	}
 	return opts
 }
