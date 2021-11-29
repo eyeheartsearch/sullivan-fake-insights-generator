@@ -23,6 +23,7 @@ type StatsPerTerm struct {
 
 type StatsPerTermList []*StatsPerTerm
 
+// Implement Sort interface
 func (s StatsPerTermList) Len() int           { return len(s) }
 func (s StatsPerTermList) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s StatsPerTermList) Less(i, j int) bool { return s[i].TotalSearches > s[j].TotalSearches }
