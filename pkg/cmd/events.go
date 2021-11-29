@@ -51,6 +51,11 @@ func NewEventsCmd() *cobra.Command {
 			appId := cmd.Flag("app-id").Value.String()
 			apiKey := cmd.Flag("api-key").Value.String()
 			indexName := cmd.Flag("index-name").Value.String()
+
+			if appId == "" || apiKey == "" || indexName == "" {
+				return fmt.Errorf("missing required flags: app-id, api-key, index-name")
+			}
+
 			searchClient := search.NewClient(appId, apiKey)
 
 			cfg.SearchIndex = searchClient.InitIndex(indexName)
