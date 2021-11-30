@@ -24,8 +24,11 @@ type Config struct {
 
 	NumberOfUsers   int
 	SearchesPerUser int
+	PersonaUsers    []*User
+	EventsNames     EventNames
 
 	HitsPerPage      int
+	ClickPosition    int
 	ClickThroughRate float64
 	ConversionRate   float64
 

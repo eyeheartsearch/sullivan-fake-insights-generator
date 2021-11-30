@@ -28,6 +28,7 @@ func (s StatsPerTermList) Len() int           { return len(s) }
 func (s StatsPerTermList) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s StatsPerTermList) Less(i, j int) bool { return s[i].TotalSearches > s[j].TotalSearches }
 
+// NewStatsForTerm creates a new Stats object for a given search term.
 func NewStatsForTerm(term string, events []Event) *StatsPerTerm {
 	var eventsForTerm []Event
 	for _, event := range events {

@@ -1,0 +1,70 @@
+[
+  {
+    "term": "trousers",
+    "synonyms": ["pants"],
+    "click_through_rate": 40,
+    "conversion_rate": 50,
+    "click_position": 6,
+    "filters": {
+      "gender": {
+        "women": 5,
+        "men": 3
+      }
+    }
+  },
+  {
+    "term": "jumpers",
+    "synonyms": ["hoodie"]
+  },
+  {
+    "term": "shoes"
+  },
+  {
+    "term": "bags"
+  },
+  {
+    "term": "polo"
+  },
+  {
+    "term": "sweater"
+  },
+  {
+    "term": "jeans",
+    "synonyms": ["denim"]
+  },
+  {
+    "term": "flats",
+    "synonyms": ["Ballerina"]
+  },
+  {
+    "term": "sale"
+  },
+  {
+    "term": "skirt"
+  },
+  {
+    "term": "cardigan"
+  },
+  {
+    "term": "hats"
+  },
+  {
+    "term": "women shorts"
+  },
+  {
+    "term": "men sport"
+  },
+  {
+    "term": "jacket"
+  },
+  {
+    "term": "shoes on sale"
+  },
+  {
+    "term": "tee",
+    "synonyms": ["tshirt"]
+  },
+  {
+    "term": "pants"
+  }
+]

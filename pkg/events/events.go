@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
-	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	wr "github.com/mroth/weightedrand"
 )
 
@@ -47,11 +46,17 @@ func CalculatePositionWeight(itemPosition int, clickPosition int) uint {
 	return uint(1 + clickDistributionApogee*math.Exp(-(math.Pow(a, 2)/b)))
 }
 
-func (e *SearchEvent) PickObjectIDPosition() (int, error) {
+// PickObjectIDPosition return the click position for a given searchEvent.
+// The position is picked based on the Term's click position first if defined, then on the global click position.
+func (e *SearchEvent) PickObjectIDPosition(cfg *Config) (int, error) {
 	var choices []wr.Choice
 	for i := range e.ObjectIDs {
+		clickPosition := e.Term.ClickPosition
+		if clickPosition == 0 {
+			clickPosition = cfg.ClickPosition
+		}
 		choices = append(choices, wr.Choice{
-			Weight: CalculatePositionWeight(i, e.Term.ClickPosition),
+			Weight: CalculatePositionWeight(i, clickPosition),
 			Item:   i,
 		})
 	}
@@ -63,45 +68,13 @@ func (e *SearchEvent) PickObjectIDPosition() (int, error) {
 	return chooser.Pick().(int), nil
 }
 
-func NewSearchEvent(cfg *Config, user *User) (*SearchEvent, error) {
-	searchTerm := cfg.SearchTerms.Pick()
-	searchOpts := user.GetSearchOptions(cfg)
-	searchOpts = append(searchOpts, opt.HitsPerPage(cfg.HitsPerPage))
-
-	// Need to add the `GetRankingInfo` to identify the A/B test variant ID
-	if cfg.ABTest.VariantID != 0 {
-		searchOpts = append(searchOpts, opt.GetRankingInfo(true))
-	}
-
-	res, err := cfg.SearchIndex.Search(searchTerm.Term, searchOpts...)
-	if err != nil {
-		return nil, err
-	}
-
-	// Dynamic synonyms
-	if searchTerm.Synonym != "" {
-		res, err = cfg.SearchIndex.Search(searchTerm.Synonym, searchOpts...)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	objectIDs := make([]string, 0, res.NbHits)
-	for _, hit := range res.Hits {
-		objectIDs = append(objectIDs, hit["objectID"].(string))
-	}
-
-	return &SearchEvent{
-		Term:            searchTerm,
-		ObjectIDs:       objectIDs,
-		QueryID:         res.QueryID,
-		ABTestVariantID: res.ABTestVariantID,
-	}, nil
-}
-
-func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *Event {
+// MaybeClickEvent returns a click event if the user clicked on a object from a SearchEvent.
+func MaybeClickEvent(user *User, cfg *Config, time time.Time, searchEvent SearchEvent) *Event {
 	// Get the click through rate for this specific search term
-	clickThroughRate := cfg.ClickThroughRate / 100 * searchEvent.Term.ClickThroughRate
+	clickThroughRate := cfg.ClickThroughRate / 100
+	if searchEvent.Term.ClickThroughRate != 0 {
+		clickThroughRate = searchEvent.Term.ClickThroughRate / 100
+	}
 
 	// Improve the click through rate if A/B test is enabled and the variant is the "good" one.
 	if searchEvent.ABTestVariantID != 0 && searchEvent.ABTestVariantID == cfg.ABTest.VariantID {
@@ -113,11 +86,16 @@ func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, 
 	}
 
 	// Pick a random object ID to click on.
-	position, err := searchEvent.PickObjectIDPosition()
+	position, err := searchEvent.PickObjectIDPosition(cfg)
 	if err != nil {
 		return nil
 	}
 	objectID := searchEvent.ObjectIDs[position]
+
+	eventName, err := cfg.EventsNames.PickForType(insights.EventTypeConversion)
+	if err != nil {
+		return nil
+	}
 
 	insightsEvent := &insights.Event{
 		EventType: insights.EventTypeClick,
@@ -128,7 +106,6 @@ func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, 
 		ObjectIDs: []string{objectID},
 		Positions: []int{position + 1}, // Positions start at 1
 		QueryID:   searchEvent.QueryID,
-		Filters:   searchEvent.Filters,
 	}
 
 	return &Event{
@@ -137,9 +114,15 @@ func MaybeClickEvent(user *User, cfg *Config, eventName string, time time.Time, 
 	}
 }
 
-func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.Time, searchEvent SearchEvent) *Event {
+// MaybeConversionEvent returns a conversion event if the user converted on a object from a SearchEvent.
+func MaybeConversionEvent(user *User, cfg *Config, time time.Time, searchEvent SearchEvent) *Event {
+	// Global conversion rate
+	conversionRate := cfg.ConversionRate / 100
+
 	// Get the conversion rate for this specific search term
-	conversionRate := cfg.ConversionRate / 100 * searchEvent.Term.ConversionRate
+	if searchEvent.Term.ConversionRate != 0 {
+		conversionRate = searchEvent.Term.ConversionRate / 100
+	}
 
 	// Improve the conversion rate if A/B test is enabled and the variant is the "good" one.
 	if searchEvent.ABTestVariantID != 0 && searchEvent.ABTestVariantID == cfg.ABTest.VariantID {
@@ -151,11 +134,17 @@ func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.T
 	}
 
 	// Pick a random object ID to convert.
-	position, err := searchEvent.PickObjectIDPosition()
+	position, err := searchEvent.PickObjectIDPosition(cfg)
 	if err != nil {
 		return nil
 	}
 	objectID := searchEvent.ObjectIDs[position]
+
+	// Pick a conversion event name.
+	eventName, err := cfg.EventsNames.PickForType(insights.EventTypeConversion)
+	if err != nil {
+		return nil
+	}
 
 	insightsEvent := &insights.Event{
 		EventType: insights.EventTypeConversion,
@@ -165,7 +154,6 @@ func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.T
 		Timestamp: time,
 		ObjectIDs: []string{objectID},
 		QueryID:   searchEvent.QueryID,
-		Filters:   searchEvent.Filters,
 	}
 
 	return &Event{
@@ -174,6 +162,8 @@ func MaybeConversionEvent(user *User, cfg *Config, eventName string, time time.T
 	}
 }
 
+// GenerateEventsForAllUsers generates events for all users.
+// We create a pool of 100 goroutines to limit the number of concurrent requests.
 func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *User, events chan<- Event) {
 	for i := 0; i < 100; i++ {
 		wg.Add(1)
@@ -186,33 +176,35 @@ func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *Us
 	}
 }
 
+// GenerateEvents generates events for a given user.
 func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- Event) {
 	for i := 0; i < cfg.SearchesPerUser; i++ {
-		searchEvent, err := NewSearchEvent(cfg, user)
+		searchEvent, err := user.Search(cfg)
 		if err != nil {
 			fmt.Printf("Error doing search: %v\n", err)
 			continue
 		}
 		events <- Event{SearchEvent: searchEvent}
 		if len(searchEvent.ObjectIDs) == 0 {
-			fmt.Printf("Warning: No results for search term: %s (%s)\n", searchEvent.Term.Term, searchEvent.Term.Synonym)
+			fmt.Printf("Warning: No results for search term: %s - filters: %v - synonyms: %v\n", searchEvent.Term.Term, searchEvent.Filters, searchEvent.Term.Synonyms)
 			continue
 		}
 
 		// Generate a click event
-		clickEvent := MaybeClickEvent(user, cfg, "click", time.Now(), *searchEvent)
+		clickEvent := MaybeClickEvent(user, cfg, time.Now(), *searchEvent)
 		if clickEvent != nil {
 			events <- *clickEvent
 		}
 
 		// Generate a conversion event
-		conversionEvent := MaybeConversionEvent(user, cfg, "conversion", time.Now(), *searchEvent)
+		conversionEvent := MaybeConversionEvent(user, cfg, time.Now(), *searchEvent)
 		if conversionEvent != nil {
 			events <- *conversionEvent
 		}
 	}
 }
 
+// Run is the entry point to generate the events.
 func Run(cfg *Config) (StatsPerTermList, error) {
 	var wg sync.WaitGroup
 	users := GenerateUsers(&wg, cfg)
@@ -220,16 +212,19 @@ func Run(cfg *Config) (StatsPerTermList, error) {
 	events := make(chan Event)
 	GenerateEventsForAllUsers(&wg, cfg, users, events)
 
+	// Wait for all goroutines to finish and close the results channel.
 	go func() {
 		wg.Wait()
 		close(events)
 	}()
 
+	// Gather all the events created.
 	eventsList := make([]Event, 0)
 	for event := range events {
 		eventsList = append(eventsList, event)
 	}
 
+	// Compute the stats for each search term.
 	stats := make(StatsPerTermList, 0)
 	stats = append(stats, NewStatsForTerm("ALL", eventsList))
 	for _, term := range cfg.SearchTerms.SearchTerms {
@@ -242,7 +237,7 @@ func Run(cfg *Config) (StatsPerTermList, error) {
 		return stats, nil
 	}
 
-	// Send events to Insights
+	// Send events to Insights API.
 	var insightsEvent []insights.Event
 	for _, event := range eventsList {
 		if event.InsightEvent != nil {

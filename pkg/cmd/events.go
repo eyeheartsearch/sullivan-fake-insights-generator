@@ -41,11 +41,33 @@ func NewEventsCmd() *cobra.Command {
 
 			// Users tags
 			usersTagsFileName := cmd.Flag("user-tags").Value.String()
-			tagsCollection, err := events.LoadTags(usersTagsFileName)
-			if err != nil {
-				return err
+			if usersTagsFileName != "" {
+				tagsCollection, err := events.LoadTags(usersTagsFileName)
+				if err != nil {
+					return err
+				}
+				cfg.TagsCollection = tagsCollection
 			}
-			cfg.TagsCollection = tagsCollection
+
+			// Personas
+			personasFileName := cmd.Flag("personas").Value.String()
+			if personasFileName != "" {
+				personas, err := events.NewUsersFromFile(cfg, personasFileName)
+				if err != nil {
+					return err
+				}
+				cfg.PersonaUsers = personas
+			}
+
+			// Events Names
+			eventsNamesFileName := cmd.Flag("events-names").Value.String()
+			if eventsNamesFileName != "" {
+				eventsNames, err := events.EventNamesFromFile(eventsNamesFileName)
+				if err != nil {
+					return err
+				}
+				cfg.EventsNames = eventsNames
+			}
 
 			// Algolia clients (search and insights)
 			appId := cmd.Flag("app-id").Value.String()
@@ -69,17 +91,19 @@ func NewEventsCmd() *cobra.Command {
 	cmd.Flags().String("api-key", "", "Algolia API key")
 	cmd.Flags().String("index-name", "", "Algolia index name")
 
-	cmd.Flags().String("search-terms", "search-terms.csv", "searches terms file")
+	cmd.Flags().String("search-terms", "searches.json", "searches terms file")
 	cmd.Flags().String("user-tags", "user-tags.json", "users tags file")
+	cmd.Flags().String("personas", "", "users persona file")
+	cmd.Flags().String("events-names", "events-names.json", "events names file")
 
 	cmd.Flags().IntVar(&cfg.NumberOfUsers, "users", 100, "number of users")
 	cmd.Flags().IntVar(&cfg.SearchesPerUser, "searches-per-user", 5, "number of searches per user")
 
 	cmd.Flags().IntVar(&cfg.HitsPerPage, "hits-per-page", 20, "number of hits per page")
+	cmd.Flags().IntVar(&cfg.ClickPosition, "average-click-position", 1, "average click position")
 	cmd.Flags().Float64Var(&cfg.ClickThroughRate, "click-through-rate", 20, "click through rate")
 	cmd.Flags().Float64Var(&cfg.ConversionRate, "conversion-rate", 10, "conversion rate")
 
-	// cmd.Flags().StringVar(&cfg.ABTest, "ab-test-", false, "A/B Test")
 	cmd.Flags().IntVar(&cfg.ABTest.VariantID, "ab-test-variant-id", 0, "A/B Test: ID of the variant to favorize")
 	cmd.Flags().Float64Var(&cfg.ABTest.ClickThroughRate, "ab-test-variant-ctr", 20, "A/B Test: How much CTR +% for the selected variant")
 	cmd.Flags().Float64Var(&cfg.ABTest.ConversionRate, "ab-test-variant-cvr", 20, "A/B Test: How much CTR +% for the selected variant")
@@ -117,7 +141,7 @@ func runEventsCmd(cfg *events.Config) error {
 	}
 
 	if cfg.IO.IsStdoutTTY() {
-		fmt.Fprintf(cfg.IO.Out, "%s Done generating events!\n", cs.SuccessIcon())
+		fmt.Fprintf(cfg.IO.Out, "%s All Done!\n\n", cs.SuccessIcon())
 	}
 
 	table := utils.NewTablePrinter(cfg.IO)

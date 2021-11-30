@@ -1,0 +1,25 @@
+[
+  {
+    "description": "Woman who likes black dresses (size S)",
+    "token": "woman-black-dress",
+    "terms": ["black dress", "dress"],
+    "filters": {
+      "gender": {
+        "women": 9,
+        "men": 1
+      },
+      "brand": {
+        "Michael Kors": 6,
+        "Polo Ralph Lauren": 1
+      },
+      "available_sizes": {
+        "S": 9,
+        "M": 1
+      },
+      "color.original_name": {
+        "black": 8,
+        "blue": 3
+      }
+    }
+  }
+]
