@@ -33,7 +33,7 @@ go run cmd/main.go events --help
 ```
 
 1. All flags with default values can be omitted.
-2. All flags can be set in a configuration file (`config.yml`) instead of passing them as arguments.
+2. All flags can be set in a configuration file (ex: [config-sample.yml](./config-sample.yml)) instead of passing them as arguments.
 
 
 ```bash

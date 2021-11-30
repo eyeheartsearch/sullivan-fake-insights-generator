@@ -1,0 +1,18 @@
+# Mandatory flags
+# ---------------
+app-id: ''
+api-key: ''
+index-name: ''
+search-terms: ''
+user-tags: ''
+# Optional flags (with existing default)
+# --------------------------------------
+users: 100
+searches-per-user: 5
+hits-per-page: 20
+click-through-rate: 20
+conversion-rate: 10
+# A/B test related flags
+ab-test-variant-id: 1
+ab-test-variant-ctr: 20
+ab-test-variant-cvr: 20
