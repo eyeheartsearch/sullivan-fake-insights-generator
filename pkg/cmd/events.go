@@ -93,11 +93,12 @@ func NewEventsCmd() *cobra.Command {
 
 	cmd.Flags().String("search-terms", "searches.json", "searches terms file")
 	cmd.Flags().String("user-tags", "user-tags.json", "users tags file")
-	cmd.Flags().String("personas", "", "users persona file")
+	cmd.Flags().String("personas", "personas.json", "users persona file")
 	cmd.Flags().String("events-names", "events-names.json", "events names file")
 
 	cmd.Flags().IntVar(&cfg.NumberOfUsers, "users", 100, "number of users")
 	cmd.Flags().IntVar(&cfg.SearchesPerUser, "searches-per-user", 5, "number of searches per user")
+	cmd.Flags().DurationVar(&cfg.SearchDelay, "delay-between-searches", 45, "delay between searches for each user, in seconds")
 
 	cmd.Flags().IntVar(&cfg.HitsPerPage, "hits-per-page", 20, "number of hits per page")
 	cmd.Flags().IntVar(&cfg.ClickPosition, "average-click-position", 1, "average click position")

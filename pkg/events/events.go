@@ -165,7 +165,7 @@ func MaybeConversionEvent(user *User, cfg *Config, time time.Time, searchEvent S
 // GenerateEventsForAllUsers generates events for all users.
 // We create a pool of 100 goroutines to limit the number of concurrent requests.
 func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *User, events chan<- Event) {
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 200; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -200,6 +200,11 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- E
 		conversionEvent := MaybeConversionEvent(user, cfg, time.Now(), *searchEvent)
 		if conversionEvent != nil {
 			events <- *conversionEvent
+		}
+
+		// Delay the next search to avoid triggering unwanted synonyms.
+		if i < cfg.SearchesPerUser-1 {
+			time.Sleep(time.Duration(cfg.SearchDelay * time.Second))
 		}
 	}
 }

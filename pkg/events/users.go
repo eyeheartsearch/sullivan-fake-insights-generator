@@ -80,7 +80,6 @@ func (u *User) Search(cfg *Config) (*SearchEvent, error) {
 	}
 
 	// Trigger the Dynamic Synonyms by doing directly a search with one the synonym.
-	// Since we won't click or convert on the first search, it should be enough to trigger the feature.
 	if len(searchTerm.Synonyms) != 0 {
 		res, err = cfg.SearchIndex.Search(searchTerm.PickSynonym(), searchOpts...)
 		if err != nil {

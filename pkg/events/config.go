@@ -1,6 +1,8 @@
 package events
 
 import (
+	"time"
+
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 	"github.com/algolia/fake-insights-generator/pkg/iostreams"
@@ -24,6 +26,7 @@ type Config struct {
 
 	NumberOfUsers   int
 	SearchesPerUser int
+	SearchDelay     time.Duration
 	PersonaUsers    []*User
 	EventsNames     EventNames
 

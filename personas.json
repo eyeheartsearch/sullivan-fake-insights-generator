@@ -4,9 +4,11 @@
     "token": "woman-black-dress",
     "terms": ["black dress", "dress"],
     "filters": {
+      "category_page_id": {
+        "Women > Clothing > Dresses": 10
+      },
       "gender": {
-        "women": 9,
-        "men": 1
+        "women": 10
       },
       "brand": {
         "Michael Kors": 6,
@@ -17,8 +19,7 @@
         "M": 1
       },
       "color.original_name": {
-        "black": 8,
-        "blue": 3
+        "black": 8
       }
     }
   }
