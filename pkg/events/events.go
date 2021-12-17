@@ -211,8 +211,14 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- E
 
 // Run is the entry point to generate the events.
 func Run(cfg *Config) (StatsPerTermList, error) {
-
-	fmt.Println(time.Now().Unix()/10000000, "Starting...")
+	// If we have an AcceleratorOrigin defined, modify the NumberOfUsers, ClickThroughRate and ConversionRate
+	if cfg.AcceleratorOrigin != nil {
+		daysSince := time.Since(*cfg.AcceleratorOrigin).Hours() / 24
+		accelerator := 1 + daysSince/1000
+		cfg.ClickThroughRate = cfg.ClickThroughRate * accelerator
+		cfg.NumberOfUsers = int(math.Round(float64(cfg.NumberOfUsers) * accelerator))
+		cfg.ConversionRate = cfg.ConversionRate * accelerator
+	}
 
 	var wg sync.WaitGroup
 	users := GenerateUsers(&wg, cfg)

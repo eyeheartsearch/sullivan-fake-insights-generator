@@ -83,6 +83,17 @@ func NewEventsCmd() *cobra.Command {
 			cfg.SearchIndex = searchClient.InitIndex(indexName)
 			cfg.InsightsClient = insights.NewClient(appId, apiKey)
 
+			// Accelrator origin
+			origin := cmd.Flag("accelerator-origin").Value.String()
+			var acceleratorOrigin time.Time
+			if origin != "" {
+				acceleratorOrigin, err = time.Parse("2006-01-02", origin)
+				if err != nil {
+					return err
+				}
+				fmt.Println(acceleratorOrigin)
+				cfg.AcceleratorOrigin = &acceleratorOrigin
+			}
 			return runEventsCmd(cfg)
 		},
 	}
@@ -104,6 +115,8 @@ func NewEventsCmd() *cobra.Command {
 	cmd.Flags().IntVar(&cfg.ClickPosition, "average-click-position", 1, "average click position")
 	cmd.Flags().Float64Var(&cfg.ClickThroughRate, "click-through-rate", 20, "click through rate")
 	cmd.Flags().Float64Var(&cfg.ConversionRate, "conversion-rate", 10, "conversion rate")
+
+	cmd.Flags().String("accelerator-origin", "", "")
 
 	cmd.Flags().IntVar(&cfg.ABTest.VariantID, "ab-test-variant-id", 0, "A/B Test: ID of the variant to favorize")
 	cmd.Flags().Float64Var(&cfg.ABTest.ClickThroughRate, "ab-test-variant-ctr", 4, "A/B Test: How much CTR +% for the selected variant")

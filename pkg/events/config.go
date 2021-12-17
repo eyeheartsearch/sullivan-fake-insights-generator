@@ -35,5 +35,7 @@ type Config struct {
 	ClickThroughRate float64
 	ConversionRate   float64
 
+	AcceleratorOrigin *time.Time
+
 	ABTest ABTest
 }
