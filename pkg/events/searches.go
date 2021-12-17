@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"strings"
 
 	wr "github.com/mroth/weightedrand"
 )
@@ -17,12 +18,19 @@ type SearchTerms struct {
 
 func (t *SearchTerms) NewChooser() error {
 	choices := make([]wr.Choice, 0, len(t.SearchTerms))
-	weight := 100
+	weight := 20
 	for _, v := range t.SearchTerms {
-		choices = append(choices, wr.Choice{
-			Item:   v,
-			Weight: uint(weight),
-		})
+		if v.NoResults {
+			choices = append(choices, wr.Choice{
+				Item:   v,
+				Weight: uint(1),
+			})
+		} else {
+			choices = append(choices, wr.Choice{
+				Item:   v,
+				Weight: uint(weight),
+			})
+		}
 		if weight > 1 {
 			weight--
 		}
@@ -45,20 +53,23 @@ func (f Filters) Pick() (string, error) {
 	if len(f) == 0 {
 		return "", nil
 	}
-	choices := make([]wr.Choice, 0, len(f))
+
+	filters := make([]string, 0)
 	for filterName, values := range f {
+		choices := make([]wr.Choice, 0)
 		for k, w := range values {
 			choices = append(choices, wr.Choice{
 				Item:   fmt.Sprintf("%s:\"%s\"", filterName, k),
 				Weight: uint(w),
 			})
 		}
+		chooser, err := wr.NewChooser(choices...)
+		if err != nil {
+			return "", err
+		}
+		filters = append(filters, chooser.Pick().(string))
 	}
-	chooser, err := wr.NewChooser(choices...)
-	if err != nil {
-		return "", err
-	}
-	return chooser.Pick().(string), nil
+	return strings.Join(filters, " AND "), nil
 }
 
 type SearchTerm struct {
@@ -68,6 +79,7 @@ type SearchTerm struct {
 	ClickPosition    int      `json:"click_position,omitempty"`
 	Synonyms         []string `json:"synonyms,omitempty"`
 	Filters          Filters  `json:"filters,omitempty"`
+	NoResults        bool     `json:"no_results,omitempty"`
 }
 
 func (t *SearchTerm) PickSynonym() string {

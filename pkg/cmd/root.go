@@ -14,6 +14,7 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd.AddCommand(NewEventsCmd())
+	rootCmd.AddCommand(NewRecommendCmd())
 
 	return rootCmd
 }

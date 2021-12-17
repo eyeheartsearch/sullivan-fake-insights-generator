@@ -3,7 +3,7 @@ package events
 import "github.com/algolia/algoliasearch-client-go/v3/algolia/insights"
 
 // Send events to Insights API in batches.
-func SendEvents(cfg *Config, events []insights.Event) error {
+func SendEvents(i *insights.Client, events []insights.Event) error {
 	chunkSize := 1000
 	var chunks [][]insights.Event
 	for i := 0; i < len(events); i += chunkSize {
@@ -16,7 +16,7 @@ func SendEvents(cfg *Config, events []insights.Event) error {
 		chunks = append(chunks, events[i:end])
 	}
 	for _, chunk := range chunks {
-		if _, err := cfg.InsightsClient.SendEvents(chunk); err != nil {
+		if _, err := i.SendEvents(chunk); err != nil {
 			return err
 		}
 	}

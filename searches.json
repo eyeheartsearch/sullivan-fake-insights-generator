@@ -1,46 +1,57 @@
 [
   {
-    "term": "trousers",
-    "synonyms": ["pants"],
-    "click_through_rate": 40,
-    "conversion_rate": 50,
-    "click_position": 6,
-    "filters": {
-      "gender": {
-        "women": 5,
-        "men": 3
-      }
-    }
+    "term": "sweatpants",
+    "synonyms": ["pants"]
   },
   {
-    "term": "jumpers",
-    "synonyms": ["hoodie"]
+    "term": "men's sports",
+    "click_through_rate": 3
   },
   {
-    "term": "shoes"
+    "term": "jumper",
+    "synonyms": ["sweater"]
   },
   {
-    "term": "bags"
+    "term": "hoodie",
+    "click_position": 8
   },
   {
-    "term": "polo"
+    "term": "knitwear",
+    "click_through_rate": 5
   },
   {
-    "term": "sweater"
+    "term": "men shoes",
+    "synonyms": ["men sneakers"]
   },
   {
-    "term": "jeans",
+    "term": "sales",
+    "click_position": 8
+  },
+  {
+    "term": "jean",
     "synonyms": ["denim"]
   },
   {
-    "term": "flats",
-    "synonyms": ["Ballerina"]
+    "term": "trousers",
+    "click_position": 8
   },
   {
-    "term": "sale"
+    "term": "woman dress",
+    "synonyms": ["woman skirt"]
   },
   {
-    "term": "skirt"
+    "term": "sunglasses",
+    "synonyms": ["shades"]
+  },
+  {
+    "term": "tee-shirt",
+    "synonyms": ["t-shirt"]
+  },
+  {
+    "term": "high heels"
+  },
+  {
+    "term": "bags"
   },
   {
     "term": "cardigan"
@@ -49,22 +60,73 @@
     "term": "hats"
   },
   {
-    "term": "women shorts"
+    "term": "men"
   },
   {
-    "term": "men sport"
+    "term": "shorts"
   },
   {
-    "term": "jacket"
+    "term": "watch"
   },
   {
-    "term": "shoes on sale"
+    "term": "coat"
   },
   {
-    "term": "tee",
-    "synonyms": ["tshirt"]
+    "term": "dress"
   },
   {
-    "term": "pants"
+    "term": "jogger"
+  },
+  {
+    "term": "gift card",
+    "no_results": true
+  },
+  {
+    "term": "customer support",
+    "no_results": true
+  },
+  {
+    "term": "sportwear",
+    "no_results": true
+  },
+  {
+    "term": "summer jacket",
+    "no_results": true
+  },
+  {
+    "term": "shirt size s",
+    "no_results": true
+  },
+  {
+    "term": "unisex",
+    "no_results": true
+  },
+  {
+    "term": "made in italy",
+    "no_results": true
+  },
+  {
+    "term": "hiking",
+    "no_results": true
+  },
+  {
+    "term": "shoe size 36",
+    "no_results": true
+  },
+  {
+    "term": "what are some popular shirts",
+    "no_results": true
+  },
+  {
+    "term": "xmas gift",
+    "no_results": true
+  },
+  {
+    "term": "gift ideas",
+    "no_results": true
+  },
+  {
+    "term": "brooklyn beckham",
+    "no_results": true
   }
 ]

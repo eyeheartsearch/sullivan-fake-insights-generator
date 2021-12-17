@@ -165,7 +165,7 @@ func MaybeConversionEvent(user *User, cfg *Config, time time.Time, searchEvent S
 // GenerateEventsForAllUsers generates events for all users.
 // We create a pool of 100 goroutines to limit the number of concurrent requests.
 func GenerateEventsForAllUsers(wg *sync.WaitGroup, cfg *Config, users <-chan *User, events chan<- Event) {
-	for i := 0; i < 200; i++ {
+	for i := 0; i < 1000; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -186,7 +186,7 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- E
 		}
 		events <- Event{SearchEvent: searchEvent}
 		if len(searchEvent.ObjectIDs) == 0 {
-			fmt.Printf("Warning: No results for search term: %s - filters: %v - synonyms: %v\n", searchEvent.Term.Term, searchEvent.Filters, searchEvent.Term.Synonyms)
+			// fmt.Printf("Warning: No results for search term: %s - filters: %v - synonyms: %v\n", searchEvent.Term.Term, searchEvent.Filters, searchEvent.Term.Synonyms)
 			continue
 		}
 
@@ -211,6 +211,9 @@ func GenerateEvents(wg *sync.WaitGroup, cfg *Config, user *User, events chan<- E
 
 // Run is the entry point to generate the events.
 func Run(cfg *Config) (StatsPerTermList, error) {
+
+	fmt.Println(time.Now().Unix()/10000000, "Starting...")
+
 	var wg sync.WaitGroup
 	users := GenerateUsers(&wg, cfg)
 
@@ -249,7 +252,7 @@ func Run(cfg *Config) (StatsPerTermList, error) {
 			insightsEvent = append(insightsEvent, *event.InsightEvent)
 		}
 	}
-	err := SendEvents(cfg, insightsEvent)
+	err := SendEvents(cfg.InsightsClient, insightsEvent)
 	if err != nil {
 		return nil, err
 	}

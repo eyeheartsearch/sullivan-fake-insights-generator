@@ -1,0 +1,177 @@
+{
+  "facetName": "category_page_id",
+  "FBT": {
+    "Women > Bags > Shoulder bags": [
+      "Women > Clothing"
+    ],
+    "Women > Clothing > T-shirts": [
+      "Women > Clothing > Jeans",
+      "Women > Shoes > Sneakers"
+    ],
+    "Women > Bags > Handbag": [
+      "Women > Bags > Wallets"
+    ],
+    "Women > Bags > Wallets": [
+      "Women > Bags > Handbag"
+    ],
+    "Women > Shoes": [
+      "Women > Clothing > Jeans",
+      "Women > Clothing > T-shirts",
+      "Women > Clothing > Jackets"
+    ],
+    "Women > Shoes > Sneakers": [
+      "Women > Clothing > Jeans",
+      "Women > Clothing > T-shirts",
+      "Women > Clothing > Jackets"
+    ],
+    "Women > Clothing > Jeans": [
+      "Women > Shoes > Sneakers",
+      "Women > Clothing > T-shirts",
+      "Women > Clothing > Jackets"
+    ],
+    "Women > Clothing > Jackets": [
+      "Women > Clothing > Jeans",
+      "Women > Clothing > T-shirts",
+      "Women > Shoes > Sneakers"
+    ],
+    "Women > Bags > Shopper" : [
+      "Women > Clothing > Dresses",
+      "Women > Shoes > Ballerinas"
+    ],
+    "Women > Shoes > Sandals": [
+      "Women > Clothing > Tops",
+      "Women > Clothing > Jeans"
+    ],
+    "Women > Bags > Clutches": [
+      "Women > Clothing > Dresses"
+    ],
+    "Women > Clothing > Tops": [
+      "Women > Clothing > Jeans"
+    ],
+    "Women > Clothing > Dresses": [
+      "Women > Shoes > Ballerinas",
+      "Women > Bags > Clutches"
+    ],
+    "Women > Clothing > Skirts": [
+      "Women > Clothing > Tops",
+      "Women > Shoes > Sneakers"
+    ],
+    "Women > Shoes > Loafers": [
+      "Women > Clothing > Skirts",
+      "Women > Clothing > Jeans"
+    ],
+    "Women > Clothing > Blazer": [
+      "Women > Clothing > Trouser",
+      "Women > Clothing > Shirts"
+    ],
+    "Women > Clothing > Shirts": [
+      "Women > Clothing > Blazer",
+      "Women > Clothing > Jeans"
+    ],
+    "Women > Clothing > Trouser": [
+      "Women > Clothing > Blazer",
+      "Women > Clothing > Shirts"
+    ],
+    "Women > Shoes > Pumps": [
+      "Women > Clothing > Dresses",
+      "Women > Bags > Clutches"
+    ],
+    "Women > Shoes > Ballerinas": [
+      "Women > Clothing > Dresses",
+      "Women > Bags > Clutches"
+    ],
+    "Women > Shoes > Ankle boots": [
+      "Women > Clothing > Jeans",
+      "Women > Clothing > Blazer",
+      "Women > Clothing > T-shirts"
+    ],
+
+    "Men > Clothing": [
+      "Men > Shoes",
+      "Accessories > Men"
+    ],
+    "Men > Shoes": [
+      "Men > Clothing",
+      "Accessories > Men"
+    ],
+    "Men > Shoes > Sneakers": [
+      "Men > Clothing > Jeans",
+      "Men > Clothing > T-shirts",
+      "Men > Clothing > Jackets"
+    ],
+    "Men > Clothing > T-shirts": [
+      "Men > Clothing > Jeans",
+      "Men > Clothing > Trousers",
+      "Men > Shoes > Sneakers"
+    ],
+    "Men > Clothing > Jackets": [
+      "Men > Clothing > Jeans",
+      "Men > Clothing > T-shirts",
+      "Men > Shoes > Sneakers"
+    ],
+    "Men > Clothing > Tops": [
+      "Men > Clothing > Trousers",
+      "Men > Clothing > Jeans",
+      "Men > Clothing > Jackets"
+    ],
+    "Men > Clothing > Trousers": [
+      "Men > Clothing > Tops",
+      "Men > Clothing > Jackets",
+      "Men > Shoes > Lace-up shoes"
+    ],
+    "Men > Clothing > Shirts": [
+      "Men > Clothing > Trousers",
+      "Men > Clothing > Jeans",
+      "Men > Clothing > Jackets"
+    ],
+    "Men > Clothing > Jeans": [
+      "Men > Shoes > Sneakers",
+      "Men > Clothing > Tops",
+      "Men > Clothing > Jackets"
+    ],
+    "Men > Clothing > Blazer": [
+      "Men > Clothing > Trousers",
+      "Men > Clothing > Tops",
+      "Men > Clothing > Shirts"
+    ],
+    "Men > Shoes > Loafers": [
+      "Men > Clothing > Trousers",
+      "Men > Clothing > Tops",
+      "Accessories > Men > Clothing"
+    ],
+    "Men > Clothing > Suits": [
+      "Men > Shoes > Lace-up shoes",
+      "Accessories > Men > Clothing"
+    ],
+    "Men > Shoes > Lace-up shoes": [
+      "Men > Clothing > Suits",
+      "Accessories > Men > Clothing"
+    ],
+
+    "Accessories > Men": [
+      "Men > Clothing",
+      "Men > Shoes"
+    ],
+    "Accessories > Men > Clothing": [
+      "Men > Clothing",
+      "Men > Shoes"
+    ],
+
+    "Accessories > Women": [
+      "Women > Clothing",
+      "Women > Bags"
+    ],
+    "Accessories > Women > Clothing": [
+      "Women > Clothing",
+      "Women > Bags"
+    ],
+    "Accessories > Women > Looks": [
+      "Women > Clothing",
+      "Women > Bags"
+    ],
+    "Accessories > Women > Sunglasses": [
+      "Women > Shoes > Sandals",
+      "Women > Clothing > T-shirts"
+    ]
+  }
+}

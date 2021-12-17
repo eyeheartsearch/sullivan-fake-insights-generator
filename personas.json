@@ -1,7 +1,7 @@
 [
   {
     "description": "Woman who likes black dresses (size S)",
-    "token": "woman-black-dress",
+    "token": "mrs-grim",
     "terms": ["black dress", "dress"],
     "filters": {
       "category_page_id": {
@@ -11,8 +11,7 @@
         "women": 10
       },
       "brand": {
-        "Michael Kors": 6,
-        "Polo Ralph Lauren": 1
+        "Michael Kors": 6
       },
       "available_sizes": {
         "S": 9,
@@ -20,6 +19,26 @@
       },
       "color.original_name": {
         "black": 8
+      }
+    }
+  },
+  {
+    "description": "Men who like shoes (size 43)",
+    "token": "daniel-shoelaces",
+    "terms": ["sneakers", "shoes"],
+    "filters": {
+      "category_page_id": {
+        "Men > Shoes > Sneakers": 10
+      },
+      "gender": {
+        "men": 10
+      },
+      "brand": {
+        "Philippe Model": 6
+      },
+      "available_sizes": {
+        "43": 9,
+        "42": 1
       }
     }
   }

@@ -97,7 +97,7 @@ func NewEventsCmd() *cobra.Command {
 	cmd.Flags().String("events-names", "events-names.json", "events names file")
 
 	cmd.Flags().IntVar(&cfg.NumberOfUsers, "users", 100, "number of users")
-	cmd.Flags().IntVar(&cfg.SearchesPerUser, "searches-per-user", 5, "number of searches per user")
+	cmd.Flags().IntVar(&cfg.SearchesPerUser, "searches-per-user", 4, "number of searches per user")
 	cmd.Flags().DurationVar(&cfg.SearchDelay, "delay-between-searches", 45, "delay between searches for each user, in seconds")
 
 	cmd.Flags().IntVar(&cfg.HitsPerPage, "hits-per-page", 20, "number of hits per page")
@@ -106,8 +106,8 @@ func NewEventsCmd() *cobra.Command {
 	cmd.Flags().Float64Var(&cfg.ConversionRate, "conversion-rate", 10, "conversion rate")
 
 	cmd.Flags().IntVar(&cfg.ABTest.VariantID, "ab-test-variant-id", 0, "A/B Test: ID of the variant to favorize")
-	cmd.Flags().Float64Var(&cfg.ABTest.ClickThroughRate, "ab-test-variant-ctr", 20, "A/B Test: How much CTR +% for the selected variant")
-	cmd.Flags().Float64Var(&cfg.ABTest.ConversionRate, "ab-test-variant-cvr", 20, "A/B Test: How much CTR +% for the selected variant")
+	cmd.Flags().Float64Var(&cfg.ABTest.ClickThroughRate, "ab-test-variant-ctr", 4, "A/B Test: How much CTR +% for the selected variant")
+	cmd.Flags().Float64Var(&cfg.ABTest.ConversionRate, "ab-test-variant-cvr", 2, "A/B Test: How much CTR +% for the selected variant")
 
 	cmd.Flags().BoolVar(&cfg.DryRun, "dry-run", false, "if false, events will not be sent and analytics will be disabled on search queries")
 
