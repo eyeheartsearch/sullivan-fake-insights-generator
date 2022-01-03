@@ -1,15 +1,15 @@
 [
   {
-    "term": "sweatpants",
-    "synonyms": ["pants"]
+    "term": "woman sweatpants",
+    "synonyms": ["woman pants"]
   },
   {
     "term": "men's sports",
     "click_through_rate": 3
   },
   {
-    "term": "jumper",
-    "synonyms": ["sweater"]
+    "term": "men jumper",
+    "synonyms": ["men sweater"]
   },
   {
     "term": "sneakers",
@@ -28,8 +28,8 @@
     "click_position": 8
   },
   {
-    "term": "denim",
-    "synonyms": ["jeans"]
+    "term": "women denim",
+    "synonyms": ["women jeans"]
   },
   {
     "term": "trousers",
@@ -40,12 +40,12 @@
     "synonyms": ["woman skirt"]
   },
   {
-    "term": "purse",
-    "synonyms": ["clutch"]
+    "term": "women purse",
+    "synonyms": ["women clutch"]
   },
   {
-    "term": "tee-shirt",
-    "synonyms": ["t-shirt"]
+    "term": "men tee-shirt",
+    "synonyms": ["men t-shirt"]
   },
   {
     "term": "high heels"
