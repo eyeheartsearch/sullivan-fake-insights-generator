@@ -12,11 +12,11 @@
     "synonyms": ["sweater"]
   },
   {
-    "term": "hoodie",
+    "term": "sneakers",
     "click_position": 8
   },
   {
-    "term": "knitwear",
+    "term": "shopper",
     "click_through_rate": 5
   },
   {
@@ -28,8 +28,8 @@
     "click_position": 8
   },
   {
-    "term": "jean",
-    "synonyms": ["denim"]
+    "term": "denim",
+    "synonyms": ["jeans"]
   },
   {
     "term": "trousers",
@@ -40,8 +40,8 @@
     "synonyms": ["woman skirt"]
   },
   {
-    "term": "sunglasses",
-    "synonyms": ["shades"]
+    "term": "purse",
+    "synonyms": ["clutch"]
   },
   {
     "term": "tee-shirt",

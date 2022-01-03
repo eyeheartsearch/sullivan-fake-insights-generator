@@ -104,7 +104,7 @@ func MaybeClickEvent(user *User, cfg *Config, time time.Time, searchEvent Search
 		UserToken: user.Token,
 		Timestamp: time,
 		ObjectIDs: []string{objectID},
-		Positions: []int{position + 1}, // Positions start at 1
+		Positions: []int{position + 1},
 		QueryID:   searchEvent.QueryID,
 	}
 
@@ -214,10 +214,11 @@ func Run(cfg *Config) (StatsPerTermList, error) {
 	// If we have an AcceleratorOrigin defined, modify the NumberOfUsers, ClickThroughRate and ConversionRate
 	if cfg.AcceleratorOrigin != nil {
 		daysSince := time.Since(*cfg.AcceleratorOrigin).Hours() / 24
-		accelerator := 1 + daysSince/1000
+		accelerator := 1 + daysSince/200
 		cfg.ClickThroughRate = cfg.ClickThroughRate * accelerator
 		cfg.NumberOfUsers = int(math.Round(float64(cfg.NumberOfUsers) * accelerator))
 		cfg.ConversionRate = cfg.ConversionRate * accelerator
+		// fmt.Println("Accelerator:", cfg.NumberOfUsers, cfg.ClickThroughRate, cfg.ConversionRate)
 	}
 
 	var wg sync.WaitGroup

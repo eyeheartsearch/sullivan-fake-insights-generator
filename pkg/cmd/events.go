@@ -83,7 +83,7 @@ func NewEventsCmd() *cobra.Command {
 			cfg.SearchIndex = searchClient.InitIndex(indexName)
 			cfg.InsightsClient = insights.NewClient(appId, apiKey)
 
-			// Accelrator origin
+			// Accelerator origin
 			origin := cmd.Flag("accelerator-origin").Value.String()
 			var acceleratorOrigin time.Time
 			if origin != "" {
@@ -91,7 +91,6 @@ func NewEventsCmd() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				fmt.Println(acceleratorOrigin)
 				cfg.AcceleratorOrigin = &acceleratorOrigin
 			}
 			return runEventsCmd(cfg)
@@ -109,7 +108,7 @@ func NewEventsCmd() *cobra.Command {
 
 	cmd.Flags().IntVar(&cfg.NumberOfUsers, "users", 100, "number of users")
 	cmd.Flags().IntVar(&cfg.SearchesPerUser, "searches-per-user", 4, "number of searches per user")
-	cmd.Flags().DurationVar(&cfg.SearchDelay, "delay-between-searches", 45, "delay between searches for each user, in seconds")
+	cmd.Flags().DurationVar(&cfg.SearchDelay, "delay-between-searches", 46, "delay between searches for each user, in seconds")
 
 	cmd.Flags().IntVar(&cfg.HitsPerPage, "hits-per-page", 20, "number of hits per page")
 	cmd.Flags().IntVar(&cfg.ClickPosition, "average-click-position", 1, "average click position")
