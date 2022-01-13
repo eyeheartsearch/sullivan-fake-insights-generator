@@ -1,5 +1,18 @@
 [
   {
+    "term": "",
+    "filters": {
+      "category_page_id": {
+        "Women > Bags": 5,
+        "Accessories > Women": 5,
+        "Men > Clothing > Jackets": 5,
+        "Men > Shoes > Sneakers": 5
+      }
+    },
+    "click_position": 5,
+    "click_through_rate": 5
+  },
+  {
     "term": "woman sweatpants",
     "synonyms": ["woman pants"]
   },
@@ -12,20 +25,22 @@
     "synonyms": ["men sweater"]
   },
   {
-    "term": "sneakers",
-    "click_position": 8
+    "term": "jacket",
+    "click_position": 8,
+    "click_through_rate": 1
   },
   {
     "term": "shopper",
-    "click_through_rate": 5
+    "click_through_rate": 3
   },
   {
     "term": "men shoes",
     "synonyms": ["men sneakers"]
   },
   {
-    "term": "sales",
-    "click_position": 8
+    "term": "vest",
+    "click_position": 8,
+    "click_through_rate": 1
   },
   {
     "term": "women denim",
@@ -33,7 +48,8 @@
   },
   {
     "term": "trousers",
-    "click_position": 8
+    "click_position": 8,
+    "click_through_rate": 3
   },
   {
     "term": "woman dress",

@@ -1,0 +1,248 @@
+[
+  {
+    "_metadata": {
+      "lastUpdate": 1639486227
+    },
+    "conditions": [
+      {
+        "filters": "(\"hierarchical_categories.lvl0\":\"Men\")"
+      }
+    ],
+    "consequence": {
+      "userData": {
+        "title": "Mens",
+        "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero iste eveniet harum officia blanditiis corporis enim pariatur autem quidem ipsam illum distinctio ipsum, nobis et consequatur minima dolore adipisci ad.",
+        "image": {
+          "mobile": "/static/images/banners/men-mobile.jpg",
+          "desktop": "/static/images/banners/men-desktop.jpg"
+        }
+      },
+      "filterPromotes": true
+    },
+    "enabled": true,
+    "objectID": "qr-1639486193298"
+  },
+  {
+    "_metadata": {
+      "lastUpdate": 1639486161
+    },
+    "conditions": [
+      {
+        "anchoring": "contains",
+        "pattern": "Cap",
+        "alternatives": true
+      }
+    ],
+    "consequence": {
+      "userData": {
+        "title": "Cap",
+        "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero iste eveniet harum officia blanditiis corporis enim pariatur autem quidem ipsam illum distinctio ipsum, nobis et consequatur minima dolore adipisci ad.",
+        "image": {
+          "mobile": "/static/images/banners/cap-mobile.jpg",
+          "desktop": "/static/images/banners/cap-desktop.jpg"
+        }
+      },
+      "filterPromotes": true
+    },
+    "enabled": true,
+    "objectID": "qr-1639486049399"
+  },
+  {
+    "_metadata": {
+      "lastUpdate": 1639485903
+    },
+    "enabled": true,
+    "tags": [
+      "visual-editor"
+    ],
+    "description": "winter collection women",
+    "conditions": [
+      {
+        "anchoring": "is",
+        "pattern": "",
+        "alternatives": false,
+        "context": "winter-collection-2021-women"
+      }
+    ],
+    "consequence": {
+      "promote": [
+        {
+          "objectIDs": [
+            "M0E20000000FBKL"
+          ],
+          "position": 0
+        },
+        {
+          "objectIDs": [
+            "M0E20000000DJU1"
+          ],
+          "position": 1
+        },
+        {
+          "objectIDs": [
+            "M0E20000000DG2H"
+          ],
+          "position": 2
+        },
+        {
+          "objectIDs": [
+            "M0E20000000E1HU"
+          ],
+          "position": 3
+        },
+        {
+          "objectIDs": [
+            "M0E20000000DUAZ"
+          ],
+          "position": 4
+        },
+        {
+          "objectIDs": [
+            "M0E20000000E2FZ"
+          ],
+          "position": 5
+        }
+      ],
+      "filterPromotes": true
+    },
+    "objectID": "qr-1639485568350"
+  },
+  {
+    "_metadata": {
+      "lastUpdate": 1639485884
+    },
+    "enabled": true,
+    "tags": [
+      "visual-editor"
+    ],
+    "description": "winter collection men",
+    "conditions": [
+      {
+        "anchoring": "is",
+        "pattern": "",
+        "alternatives": false,
+        "context": "winter-collection-2021-men"
+      }
+    ],
+    "consequence": {
+      "promote": [
+        {
+          "objectIDs": [
+            "M0E20000000E2QT"
+          ],
+          "position": 0
+        },
+        {
+          "objectIDs": [
+            "M0E20000000F1TF"
+          ],
+          "position": 1
+        },
+        {
+          "objectIDs": [
+            "M0E20000000FCJB"
+          ],
+          "position": 2
+        },
+        {
+          "objectIDs": [
+            "M0E20000000FBH8"
+          ],
+          "position": 3
+        },
+        {
+          "objectIDs": [
+            "M0E20000000E01M"
+          ],
+          "position": 4
+        },
+        {
+          "objectIDs": [
+            "M0E20000000ELEL"
+          ],
+          "position": 5
+        },
+        {
+          "objectIDs": [
+            "M0E20000000EUTF"
+          ],
+          "position": 6
+        },
+        {
+          "objectIDs": [
+            "M0E20000000DTZB"
+          ],
+          "position": 7
+        },
+        {
+          "objectIDs": [
+            "M0E20000000E2NX"
+          ],
+          "position": 8
+        },
+        {
+          "objectIDs": [
+            "M0E20000000DGH7"
+          ],
+          "position": 9
+        }
+      ],
+      "filterPromotes": true
+    },
+    "objectID": "qr-1639485726847"
+  },
+  {
+    "_metadata": {
+      "lastUpdate": 1639485554
+    },
+    "enabled": true,
+    "tags": [
+      "visual-editor"
+    ],
+    "description": "boost shirts over tshirts",
+    "conditions": [
+      {
+        "anchoring": "is",
+        "pattern": "shirt",
+        "alternatives": true,
+        "filters": "(\"gender\":\"women\")"
+      }
+    ],
+    "consequence": {
+      "params": {
+        "optionalFilters": [
+          "hierarchical_categories.lvl2:Women > Clothing > Shirts<score=1>"
+        ]
+      },
+      "filterPromotes": true
+    },
+    "objectID": "qr-1639485243520"
+  },
+  {
+    "_metadata": {
+      "lastUpdate": 1639485535
+    },
+    "enabled": true,
+    "tags": [
+      "visual-editor"
+    ],
+    "description": "boost shirts over tshirts",
+    "conditions": [
+      {
+        "anchoring": "is",
+        "pattern": "shirt",
+        "alternatives": true,
+        "filters": "(\"gender\":\"men\")"
+      }
+    ],
+    "consequence": {
+      "params": {
+        "optionalFilters": [
+          "hierarchical_categories.lvl2:Men > Clothing > Shirts<score=1>"
+        ]
+      },
+      "filterPromotes": true
+    },
+    "objectID": "qr-1639485488497"
+  }
+]

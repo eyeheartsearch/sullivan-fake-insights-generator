@@ -1,16 +1,16 @@
 {
   "click": {
-    "PLP: Product Clicked": 8,
-    "Autocomplete: Product Clicked": 2
+    "PLP: Open product details": 8,
+    "Autocomplete: Open product details": 5,
+    "Autocomplete: Add to wish list": 2,
+    "PLP: Add to wish list": 2
   },
   "conversion": {
-    "PLP: Product Added to Cart after Search": 8,
-    "Autocomplete: Product Added to Cart": 2,
-    "Product Added to Wishlist": 1,
-    "Product Ordered": 1
+    "PLP: Add to cart": 8,
+    "PLP: Checkout": 5
   },
   "view": {
     "PLP: Product Viewed": 8,
-    "Autocomplete: Product Viewed": 2
+    "Autocomplete: Product Viewed": 3
   }
 }

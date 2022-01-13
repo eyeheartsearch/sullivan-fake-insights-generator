@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/search"
 )
 
 type User struct {
@@ -74,13 +75,23 @@ func (u *User) Search(cfg *Config) (*SearchEvent, error) {
 		searchOpts = append(searchOpts, opt.GetRankingInfo(true))
 	}
 
-	res, err := cfg.SearchIndex.Search(searchTerm.Term, searchOpts...)
-	if err != nil {
-		return nil, err
-	}
+	var res search.QueryRes
 
-	// Trigger the Dynamic Synonyms by doing directly a search with one the synonym.
-	if len(searchTerm.Synonyms) != 0 {
+	if len(searchTerm.Synonyms) == 0 {
+		// Not a synonyms case
+		res, err = cfg.SearchIndex.Search(searchTerm.Term, searchOpts...)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Eventually do the search with the low recall term (lowering the traffic on the low recall term)
+		if rand.Intn(100) < 30 {
+			_, err = cfg.SearchIndex.Search(searchTerm.Term, searchOpts...)
+			if err != nil {
+				return nil, err
+			}
+		}
+		// Trigger the Dynamic Synonyms by doing directly a search with one the synonym.
 		res, err = cfg.SearchIndex.Search(searchTerm.PickSynonym(), searchOpts...)
 		if err != nil {
 			return nil, err
@@ -93,12 +104,22 @@ func (u *User) Search(cfg *Config) (*SearchEvent, error) {
 		objectIDs = append(objectIDs, hit["objectID"].(string))
 	}
 
+	searchEvent := &SearchEvent{
+		Term:            searchTerm,
+		ObjectIDs:       objectIDs,
+		QueryID:         res.QueryID,
+		ABTestVariantID: res.ABTestVariantID,
+	}
+
+	if filter != "" {
+		searchEvent.Filters = []string{filter}
+	}
+
 	return &SearchEvent{
 		Term:            searchTerm,
 		ObjectIDs:       objectIDs,
 		QueryID:         res.QueryID,
 		ABTestVariantID: res.ABTestVariantID,
-		Filters:         []string{filter},
 	}, nil
 }
 

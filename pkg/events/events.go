@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	clickDistributionApogee = 20
+	clickDistributionApogee = 10
 )
 
 type SearchEvent struct {
@@ -56,7 +56,7 @@ func (e *SearchEvent) PickObjectIDPosition(cfg *Config) (int, error) {
 			clickPosition = cfg.ClickPosition
 		}
 		choices = append(choices, wr.Choice{
-			Weight: CalculatePositionWeight(i, clickPosition),
+			Weight: CalculatePositionWeight(i+1, clickPosition),
 			Item:   i,
 		})
 	}
@@ -92,7 +92,7 @@ func MaybeClickEvent(user *User, cfg *Config, time time.Time, searchEvent Search
 	}
 	objectID := searchEvent.ObjectIDs[position]
 
-	eventName, err := cfg.EventsNames.PickForType(insights.EventTypeConversion)
+	eventName, err := cfg.EventsNames.PickForType(insights.EventTypeClick)
 	if err != nil {
 		return nil
 	}
@@ -106,6 +106,7 @@ func MaybeClickEvent(user *User, cfg *Config, time time.Time, searchEvent Search
 		ObjectIDs: []string{objectID},
 		Positions: []int{position + 1},
 		QueryID:   searchEvent.QueryID,
+		Filters:   searchEvent.Filters,
 	}
 
 	return &Event{
@@ -154,6 +155,7 @@ func MaybeConversionEvent(user *User, cfg *Config, time time.Time, searchEvent S
 		Timestamp: time,
 		ObjectIDs: []string{objectID},
 		QueryID:   searchEvent.QueryID,
+		Filters:   searchEvent.Filters,
 	}
 
 	return &Event{
