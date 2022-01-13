@@ -20,3 +20,4 @@ config.yml
 search-terms.csv
 events-fbt.csv
 events-similar.csv
+flagship_*
