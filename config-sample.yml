@@ -5,6 +5,8 @@ api-key: ''
 index-name: ''
 search-terms: ''
 user-tags: ''
+personas: ''
+events-names: ''
 # Optional flags (with existing default)
 # --------------------------------------
 users: 100
